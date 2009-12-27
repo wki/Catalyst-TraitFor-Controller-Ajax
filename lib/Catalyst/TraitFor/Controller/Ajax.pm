@@ -25,6 +25,12 @@ our $VERSION = '0.01';
         # ...
     }
 
+=head1 DESCRIPTION
+
+Chaining an action from 'ajax' will generate an URL like
+C</somecontroller/ajax/my_action>. Additionally, a stash variable
+C<is_ajax_request> is set to 0/1 depending on this chain has been used.
+
 =head1 METHODS
 
 =head2 begin
