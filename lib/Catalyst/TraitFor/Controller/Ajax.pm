@@ -17,8 +17,8 @@ our $VERSION = '0.01';
 
     package MyApp::SomeController;
     use Moose;
-    BEGIN { extends 'Catalyst::Controller' }
-    with 'Catalyst::TraitFor::Controller::Ajax';
+    BEGIN { extends 'Catalyst::Controller' }      # needed to allow Attributes
+    with 'Catalyst::TraitFor::Controller::Ajax';  # no BEGIN{} here!!!
     
     # URL will be '/somecontroller/ajax/my_ajax_action
     sub my_ajax_action :Chained('ajax') :Args(0) {
@@ -67,6 +67,27 @@ sub ajax :Chained('base') :CaptureArgs(0) {
     $c->stash->{is_ajax_request} = 1;
 }
 
+=head1 CAVEATS
+
+=head2 begin() misbehaves if trait loaded inside a C<BEGIN> block
+
+When using Attributes in your controller -- which is a usual case, you often
+put the C<extends()> statement inside a C<BEGIN> block like this:
+
+    package MyApp::Controller::MyController;
+    BEGIN { extends 'Catalyst::Controller' }
+    BEGIN { with 'Catalyst::TraitFor::Controller::Ajax'; } ### WRONG!
+    
+    sub begin :Private {
+        # ...
+    }
+    
+    # ... more code
+
+What is wrong with the code above? Well, inside our Trait class we do some
+tricks with the C<begin()> action mathod. These tricks only work if the
+C<with()> statement is not put into a C<BEGIN> block.
+
 =head1 AUTHOR
 
 Wolfgang Kinkeldei, C<< <wki at cpan.org> >>
@@ -82,9 +103,8 @@ automatically be notified of progress on your bug as I make changes.
 
 Copyright 2009 Wolfgang Kinkeldei.
 
-This program is free software; you can redistribute it and/or modify it
-under the terms of either: the GNU General Public License as published
-by the Free Software Foundation; or the Artistic License.
+This library is free software. You can redistribute it and/or modify
+it under the same terms as Perl itself.
 
 See http://dev.perl.org/licenses/ for more information.
 
